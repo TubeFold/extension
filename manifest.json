@@ -3,7 +3,7 @@
   "name": "TubeFold",
   "version": "0.5",
   "description": "Send the YouTube video you're watching to the TubeFold app for a Markdown summary.",
-  "permissions": ["activeTab", "storage", "tabs"],
+  "permissions": ["activeTab", "storage"],
   "host_permissions": [
     "https://www.youtube.com/*",
     "https://youtu.be/*",
