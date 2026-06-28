@@ -1,0 +1,65 @@
+name: Publish
+
+# Tag-driven release to the Chrome Web Store.
+#
+# Bump "version" in manifest.json, then push a matching tag to fire it:
+#   git tag v0.2.1 && git push origin v0.2.1
+# The job fails fast if the tag doesn't equal v<manifest version> so the store
+# version and the git tag can't drift.
+#
+# Use the "Run workflow" button (workflow_dispatch) to package without publishing —
+# handy for grabbing the zip for a first manual upload.
+#
+# ── Required repository secrets ───────────────────────────────────────────────
+#   CWS_CLIENT_ID       OAuth client ID for the Chrome Web Store API
+#   CWS_CLIENT_SECRET   OAuth client secret
+#   CWS_REFRESH_TOKEN   OAuth refresh token (generated once)
+#   CWS_EXTENSION_ID    the extension ID, assigned at the first manual upload
+# Guide: https://github.com/fregante/chrome-webstore-upload/blob/main/How%20to%20generate%20Google%20API%20keys.md
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify tag matches manifest version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          manifest_version="$(jq -r .version manifest.json)"
+          tag_version="${GITHUB_REF_NAME#v}"
+          echo "manifest=$manifest_version tag=$tag_version"
+          if [ "$manifest_version" != "$tag_version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME != manifest version $manifest_version"
+            exit 1
+          fi
+
+      - name: Package extension
+        run: |
+          zip -r -X extension.zip manifest.json icons src
+          echo "Packaged:" && unzip -l extension.zip
+
+      - name: Upload zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-zip
+          path: extension.zip
+
+      - name: Publish to Chrome Web Store
+        if: startsWith(github.ref, 'refs/tags/')
+        run: npx --yes chrome-webstore-upload-cli@3 upload --auto-publish
+        env:
+          EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          ZIP_FILE: extension.zip
