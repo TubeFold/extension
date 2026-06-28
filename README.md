@@ -5,7 +5,14 @@ desktop app for a Markdown summary.
 
 The extension is a thin client: it talks to the locally-running TubeFold app over
 `http://127.0.0.1:43821`. There is **no build step** — the source under `src/` ships
-as-is. Versioning lives in `manifest.json`.
+as-is.
+
+**Versioning:** the extension version in `manifest.json` must always equal the
+TubeFold app's `MARKETING_VERSION` (in [TubeFold/App](https://github.com/TubeFold/App)).
+The publish workflow reads the app's version and **fails the release if they differ**,
+so bump `manifest.json` to match whenever the app version changes. (Note: the Chrome
+Web Store requires the version to strictly increase on every upload, so an
+extension-only fix still needs a version bump — release it alongside the next app bump.)
 
 ## Develop
 
@@ -23,7 +30,7 @@ Publishing to the Chrome Web Store is automated — see
 2. Tag and push:
 
    ```sh
-   git tag v0.2.1 && git push origin v0.2.1
+   git tag v0.5 && git push origin v0.5
    ```
 
 The workflow zips the extension and uploads + publishes it via the Chrome Web Store API.

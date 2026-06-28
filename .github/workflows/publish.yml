@@ -3,7 +3,7 @@ name: Publish
 # Tag-driven release to the Chrome Web Store.
 #
 # Bump "version" in manifest.json, then push a matching tag to fire it:
-#   git tag v0.2.1 && git push origin v0.2.1
+#   git tag v0.5 && git push origin v0.5   (tag must equal the app's version)
 # The job fails fast if the tag doesn't equal v<manifest version> so the store
 # version and the git tag can't drift.
 #
@@ -40,6 +40,24 @@ jobs:
           echo "manifest=$manifest_version tag=$tag_version"
           if [ "$manifest_version" != "$tag_version" ]; then
             echo "::error::Tag $GITHUB_REF_NAME != manifest version $manifest_version"
+            exit 1
+          fi
+
+      # The extension version must always equal the TubeFold app's MARKETING_VERSION.
+      # We read it straight from the public App repo's Xcode project so the two can't
+      # drift — a release with a mismatched version fails here instead of shipping.
+      - name: Verify version matches the TubeFold app
+        run: |
+          manifest_version="$(jq -r .version manifest.json)"
+          app_version="$(curl -fsSL 'https://raw.githubusercontent.com/TubeFold/App/main/TubeFold%20App/TubeFold.xcodeproj/project.pbxproj' \
+            | grep -m1 'MARKETING_VERSION' | sed -E 's/.*MARKETING_VERSION = ([^;]+);.*/\1/' | tr -d ' ')"
+          echo "manifest=$manifest_version app=$app_version"
+          if [ -z "$app_version" ]; then
+            echo "::error::Could not read MARKETING_VERSION from TubeFold/App"
+            exit 1
+          fi
+          if [ "$manifest_version" != "$app_version" ]; then
+            echo "::error::Extension version $manifest_version != app MARKETING_VERSION $app_version — they must match. Bump manifest.json to $app_version."
             exit 1
           fi
 

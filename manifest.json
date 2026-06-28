@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TubeFold",
-  "version": "0.2.0",
+  "version": "0.5",
   "description": "Send the YouTube video you're watching to the TubeFold app for a Markdown summary.",
   "permissions": ["activeTab", "storage", "tabs"],
   "host_permissions": [
