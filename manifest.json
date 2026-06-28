@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "TubeFold",
+  "name": "TubeFold (Mac app companion)",
   "version": "0.5",
   "description": "Send the YouTube video you're watching to the TubeFold app for a Markdown summary.",
   "permissions": ["activeTab", "storage"],
