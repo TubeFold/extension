@@ -1,7 +1,11 @@
 # TubeFold — Chrome extension
 
+[![Available in the Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Available-ff3b30?style=flat-square&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/tubefold-mac-app-companio/hjfcdpioihmgoccmfkcicofjgbkjidbh)
+
 Send the YouTube video you're watching to the [TubeFold](https://github.com/TubeFold/App)
 desktop app for a Markdown summary.
+
+**Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/tubefold-mac-app-companio/hjfcdpioihmgoccmfkcicofjgbkjidbh)** — or load it unpacked for development (below).
 
 The extension is a thin client: it talks to the locally-running TubeFold app over
 `http://127.0.0.1:43821`. There is **no build step** — the source under `src/` ships
